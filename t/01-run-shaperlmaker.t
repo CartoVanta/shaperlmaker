@@ -8,8 +8,8 @@ my $proj_out;      # captured output
 my $proj_rc;       # exit status
 
 $proj_script = 'shaperlmaker.pl';
-ok( -f $proj_script, 'existence of -- shaperlmaker.pl' );
+ok( -f $proj_script, 'source script exists' );
 
 $proj_rc = system('perl -c ' . $proj_script);
 
-ok( $proj_rc == 0, 'syntax check -- shaperlmaker.pl' );
+ok( $proj_rc == 0, 'source script passed syntax check' );
