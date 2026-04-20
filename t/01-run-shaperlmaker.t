@@ -3,16 +3,13 @@ use warnings;
 
 use Test::More tests => 2;
 
-my $lc_script;   # path to the source script
-my $lc_cmd;      # command to run the script
-my $lc_out;      # captured output
-my $lc_rc;       # exit status
+my $proj_script;   # path to the source script
+my $proj_out;      # captured output
+my $proj_rc;       # exit status
 
-$lc_script = 'shaperlmaker.pl';
-ok( -f $lc_script, 'source script exists' );
+$proj_script = 'shaperlmaker.pl';
+ok( -f $proj_script, 'existence of -- shaperlmaker.pl' );
 
-$lc_cmd = "perl $lc_script 2>&1";
-$lc_out = `$lc_cmd`;
-$lc_rc = $? >> 8;
+$proj_rc = system('perl -c ' . $proj_script);
 
-ok( $lc_rc == 0, 'script ran without failure' );
+ok( $proj_rc == 0, 'syntax check -- shaperlmaker.pl' );

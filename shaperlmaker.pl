@@ -1,6 +1,8 @@
 #!/usr/bin/env perl
 use strict;
 
+our $VERSION='0.0_1';
+
 my $countoo=50;
 
 while ( !(-f 'Makefile.PL') )
