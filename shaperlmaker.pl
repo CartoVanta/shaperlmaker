@@ -4,6 +4,11 @@ use strict;
 our $VERSION='0.0_1';
 
 my $countoo=50;
+my $errorput = '';
+my $hightarget;
+my $doingwell = 1;
+
+my $succeeded = {};
 
 while ( !(-f 'Makefile.PL') )
 {
@@ -47,36 +52,86 @@ sub verif_on_path {
 
 {
   my $lc_a;
-  foreach $lc_a (@ARGV) { duna_arg($lc_a); }
+  my $lc_ok;
+  foreach $lc_a (@ARGV)
+  {
+    $lc_ok = duna_arg($lc_a);
+    $doingwell = ( $doingwell && $lc_ok );
+  }
+  if ( !$doingwell ) { die("\n" . $errorput . "\n"); }
 }
 sub duna_arg {
+  my $lc_ok;
+  my $lc_nomi;
+  $hightarget = $_[0];
+  if ( $_[0] eq 'x' )
+  {
+    if ( !$doingwell ) { die("\n" . $errorput . "\n"); }
+    return 1;
+  }
   if ( $_[0] eq 'install' )
   {
-    die_makery();
-    die_makery('test');
-    die_makery('install');
-    return;
+    $lc_ok = try_makery();
+    if ( $lc_ok ) { $lc_ok = try_makery('test'); }
+    if ( $lc_ok ) { try_makery('install'); }
+    return $lc_ok;
   }
   if ( $_[0] eq 'pack' )
   {
     system('rm -rf *.tar.gz');
-    die_makery();
-    die_makery('test');
-    die_makery('manifest');
-    die_makery('dist');
-    system('mkdir ~/Documents/perl-ship 2> /dev/null');
-    system('cp *.tar.gz ~/Documents/perl-ship/.');
-    #system('rm -rf *.tar.gz');
-    return;
+    $lc_ok = try_makery();
+    if ( $lc_ok ) { $lc_ok = try_makery('test'); }
+    if ( $lc_ok ) { try_makery('manifest'); }
+    if ( $lc_ok ) { try_makery('dist'); }
+    if ( $lc_ok )
+    {
+      system('mkdir ~/Documents/perl-ship 2> /dev/null');
+      system('cp *.tar.gz ~/Documents/perl-ship/.');
+    }
+    return $lc_ok;
   }
-  die "\nNo such argument: " . $_[0] . " :\n\n";
+  $lc_nomi = $_[0];
+  $lc_nomi =~ s/'/\\'/g;
+  die("\n" . $errorput . "No such argument-value: '" . $lc_nomi . "'\n\n");
 }
 
-sub die_makery {
+sub try_makery {
   my $lc_a;
+  my @lc_allgo;
+  my $lc_taggy;
   
-  $lc_a = system('make',@_);
-  if ( $lc_a ne '0' ) { die "\nTermination upon failed make.\n\n"; }
+  $lc_taggy = 'x';
+  @lc_allgo = ();
+  if ( defined($_[1]) )
+  {
+    $lc_taggy = ':' . $lc_taggy;
+    @lc_allgo = ( $_[1] );
+  }
+  if ( $succeeded->{$lc_taggy} ) { return 1; }
+  
+  $lc_a = system('make',@lc_allgo);
+  if ( $lc_a != 0 )
+  {
+    $errorput .= $hightarget . ': ';
+    if ( @lc_allgo )
+    {
+      my $lc3_a;
+      my $lc3_b;
+      $errorput .= "Failed to make:";
+      foreach $lc3_a (@lc_allgo)
+      {
+        $lc3_b = $lc3_a;
+        $lc3_b =~ s/'/\\'/g;
+        $errorput .= " '" . $lc3_b . "'";
+      }
+      $errorput .= "\n";
+    } else {
+      $errorput .= "Failed basic make target.\n";
+    }
+    return 0;
+  }
+  $succeeded->{$lc_taggy} = 1;
+  return 1;
 }
 
 
