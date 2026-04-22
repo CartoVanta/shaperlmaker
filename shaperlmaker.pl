@@ -21,15 +21,17 @@ while ( !(-f 'Makefile.PL') )
 }
 
 # No point going any further if `~/local/lib/perl5`
-# is not on the `$PERL5LIB` path.
-verif_on_path();
-sub verif_on_path {
+# is not on the `$PERL5LIB` path or `~/local/bin`
+# is not on the `$PATH` path.
+verif_l_on_path('PERL5LIB','/local/lib/perl5');
+verif_l_on_path('PATH','/local/bin');
+sub verif_l_on_path {
   my $lc_ins;
   my @lc_path;
   my $lc_each;
   my $lc_plib;
-  $lc_ins = $ENV{'HOME'} . '/local/lib/perl5';
-  $lc_plib = $ENV{'PERL5LIB'};
+  $lc_ins = $ENV{'HOME'} . $_[1];
+  $lc_plib = $ENV{$_[0]};
   @lc_path = ();
   if ( defined($lc_plib) )
   {
@@ -39,7 +41,7 @@ sub verif_on_path {
   {
     if ( $lc_each eq $lc_ins ) { return; }
   }
-  die("\nNo point going on as \$PERL5LIB does not contain:\n  : " . $lc_ins . " :\n\n");
+  die("\nNo point going on as \$" . $_[0] . " does not contain:\n  : " . $lc_ins . " :\n\n");
 }
 
 
