@@ -78,6 +78,7 @@ sub duna_arg {
   }
   if ( $_[0] eq 'pack' )
   {
+    if ( $succeeded->{'s:pack'} ) { return 1; }
     system('rm -rf *.tar.gz');
     $lc_ok = try_makery();
     if ( $lc_ok ) { $lc_ok = try_makery('test'); }
@@ -85,6 +86,7 @@ sub duna_arg {
     if ( $lc_ok ) { try_makery('dist'); }
     if ( $lc_ok )
     {
+      $succeeded->{'s:pack'} = 1;
       system('mkdir ~/Documents/perl-ship 2> /dev/null');
       system('cp *.tar.gz ~/Documents/perl-ship/.');
     }
@@ -100,14 +102,19 @@ sub try_makery {
   my @lc_allgo;
   my $lc_taggy;
   
+  
   $lc_taggy = 'x';
   @lc_allgo = ();
-  if ( defined($_[1]) )
+  if ( defined($_[0]) )
   {
-    $lc_taggy = ':' . $lc_taggy;
-    @lc_allgo = ( $_[1] );
+    $lc_taggy = ':' . $_[0];
+    @lc_allgo = ( $_[0] );
   }
   if ( $succeeded->{$lc_taggy} ) { return 1; }
+  
+  print "DOING MAKE COMMAND:";
+  if ( @lc_allgo ) { print " " . $lc_allgo[0] . " :"; }
+  print "\n";
   
   $lc_a = system('make',@lc_allgo);
   if ( $lc_a != 0 )
